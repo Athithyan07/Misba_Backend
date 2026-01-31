@@ -97,6 +97,17 @@ CSRF_TRUSTED_ORIGINS = [
     "https://*.up.railway.app"
 ]
 
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_REPLACE_HTTPS_REFERER = True
+
+# Security settings for production
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # Alternative host to bypass network blocks
@@ -111,8 +122,6 @@ DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.co
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'misbatourismkkl@gmail.com')
 ADMIN_PHONE = '9025322098'
 SMS_API_KEY = os.environ.get('SMS_API_KEY') # For Fast2SMS or similar
-
-CORS_ALLOW_ALL_ORIGINS = True
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -175,6 +184,3 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
