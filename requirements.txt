@@ -1,0 +1,12 @@
+django>=5.0
+djangorestframework
+django-cors-headers
+djangorestframework-simplejwt
+gunicorn
+whitenoise
+psycopg2-binary
+python-dotenv
+sqlparse
+asgiref
+tzdata
+dj-database-url
