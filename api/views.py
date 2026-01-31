@@ -3,6 +3,22 @@ from rest_framework.response import Response
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 from django.utils.html import strip_tags
+import threading
+
+def send_email_async(subject, text_content, html_content, recipient_list):
+    def send():
+        try:
+            from_email = settings.DEFAULT_FROM_EMAIL
+            mail = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
+            mail.attach_alternative(html_content, "text/html")
+            mail.send(fail_silently=False)
+            print(f"Email sent successfully to {recipient_list}")
+        except Exception as e:
+            print(f"Async email failed to {recipient_list}: {str(e)}")
+    
+    thread = threading.Thread(target=send)
+    thread.start()
+
 from .models import Taxi, Cottage, Package, Booking, Contact, Newsletter
 from .serializers import TaxiSerializer, CottageSerializer, PackageSerializer, BookingSerializer, ContactSerializer, NewsletterSerializer
 from .permissions import IsAuthenticatedOrReadOnly, IsAuthenticatedForBookingAndContact
@@ -135,45 +151,24 @@ class BookingViewSet(viewsets.ModelViewSet):
         """
         customer_text_content = strip_tags(customer_html_content)
 
-        # Send Emails
-        try:
-            print(f"Attempting to send emails for booking: {booking.id}")
-            print(f"Using DEFAULT_FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
-            
-            # Send to Admin
-            admin_mail = EmailMultiAlternatives(
-                subject=admin_subject,
-                body=admin_text_content,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[settings.ADMIN_EMAIL],
-            )
-            admin_mail.attach_alternative(admin_html_content, "text/html")
-            
-            # Send to Customer
-            customer_mail = EmailMultiAlternatives(
-                subject=customer_subject,
-                body=customer_text_content,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[booking.customer_email],
-            )
-            customer_mail.attach_alternative(customer_html_content, "text/html")
-
-            # CRITICAL: Try to send but catch errors so the request doesn't crash
-            try:
-                admin_mail.send(fail_silently=False)
-                print("Admin email sent successfully!")
-            except Exception as e:
-                print(f"Admin email failed: {str(e)}")
-
-            try:
-                customer_mail.send(fail_silently=False)
-                print("Customer email sent successfully!")
-            except Exception as e:
-                print(f"Customer email failed: {str(e)}")
-
-        except Exception as e:
-            print(f"CRITICAL EMAIL BLOCK FAILURE: {str(e)}")
-            # We do NOT return an error here because the booking IS saved in the database
+        # Send Emails in Background
+        print(f"Triggering background emails for booking: {booking.id}")
+        
+        # Send to Admin
+        send_email_async(
+            admin_subject,
+            admin_text_content,
+            admin_html_content,
+            [settings.ADMIN_EMAIL]
+        )
+        
+        # Send to Customer
+        send_email_async(
+            customer_subject,
+            customer_text_content,
+            customer_html_content,
+            [booking.customer_email]
+        )
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -266,18 +261,24 @@ class ContactViewSet(viewsets.ModelViewSet):
         </html>
         """
 
-        try:
-            # Send to Admin
-            admin_mail = EmailMultiAlternatives(admin_subject, strip_tags(admin_html), settings.DEFAULT_FROM_EMAIL, [settings.ADMIN_EMAIL])
-            admin_mail.attach_alternative(admin_html, "text/html")
-            admin_mail.send()
-
-            # Send to Customer
-            cust_mail = EmailMultiAlternatives(customer_subject, strip_tags(customer_html), settings.DEFAULT_FROM_EMAIL, [contact.email])
-            cust_mail.attach_alternative(customer_html, "text/html")
-            cust_mail.send(fail_silently=True)
-        except Exception as e:
-            print(f"Contact email failed: {e}")
+        # Send Emails in Background
+        print(f"Triggering background emails for contact inquiry: {contact.id}")
+        
+        # Send to Admin
+        send_email_async(
+            admin_subject,
+            strip_tags(admin_html),
+            admin_html,
+            [settings.ADMIN_EMAIL]
+        )
+        
+        # Send to Customer
+        send_email_async(
+            customer_subject,
+            strip_tags(customer_html),
+            customer_html,
+            [contact.email]
+        )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -300,17 +301,12 @@ class NewsletterViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         
-        # Send confirmation email
-        try:
-            send_mail(
-                subject='Welcome to Misba Tourism Newsletter!',
-                message=f'Thank you for subscribing to our newsletter. You will now receive exclusive updates and hidden gems directly to your inbox.',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
-        except Exception as e:
-            # We still return 201 even if email fails, but log the error
-            print(f"Failed to send newsletter email: {e}")
+        # Send confirmation email in background
+        send_email_async(
+            'Welcome to Misba Tourism Newsletter!',
+            'Thank you for subscribing to our newsletter. You will now receive exclusive updates and hidden gems directly to your inbox.',
+            '<h1>Welcome!</h1><p>Thank you for subscribing to our newsletter. You will now receive exclusive updates and hidden gems directly to your inbox.</p>',
+            [email]
+        )
 
         return Response({"message": "Successfully subscribed to our newsletter!"}, status=status.HTTP_201_CREATED)
