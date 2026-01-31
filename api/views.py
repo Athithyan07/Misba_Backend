@@ -148,8 +148,6 @@ class BookingViewSet(viewsets.ModelViewSet):
                 to=[settings.ADMIN_EMAIL],
             )
             admin_mail.attach_alternative(admin_html_content, "text/html")
-            admin_mail.send(fail_silently=False)
-            print("Admin email sent successfully!")
             
             # Send to Customer
             customer_mail = EmailMultiAlternatives(
@@ -159,13 +157,23 @@ class BookingViewSet(viewsets.ModelViewSet):
                 to=[booking.customer_email],
             )
             customer_mail.attach_alternative(customer_html_content, "text/html")
-            customer_mail.send(fail_silently=False)
-            print("Customer email sent successfully!")
+
+            # CRITICAL: Try to send but catch errors so the request doesn't crash
+            try:
+                admin_mail.send(fail_silently=False)
+                print("Admin email sent successfully!")
+            except Exception as e:
+                print(f"Admin email failed: {str(e)}")
+
+            try:
+                customer_mail.send(fail_silently=False)
+                print("Customer email sent successfully!")
+            except Exception as e:
+                print(f"Customer email failed: {str(e)}")
 
         except Exception as e:
-            print(f"CRITICAL EMAIL FAILURE: {str(e)}")
+            print(f"CRITICAL EMAIL BLOCK FAILURE: {str(e)}")
             # We do NOT return an error here because the booking IS saved in the database
-            # The user should see a success message on the frontend
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
