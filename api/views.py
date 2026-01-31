@@ -9,12 +9,15 @@ def send_email_async(subject, text_content, html_content, recipient_list):
     def send():
         try:
             from_email = settings.DEFAULT_FROM_EMAIL
+            print(f"DEBUG: Starting email send to {recipient_list} via {settings.EMAIL_HOST}:{settings.EMAIL_PORT}")
             mail = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
             mail.attach_alternative(html_content, "text/html")
             mail.send(fail_silently=False)
-            print(f"Email sent successfully to {recipient_list}")
+            print(f"DEBUG: Email sent successfully to {recipient_list}")
         except Exception as e:
-            print(f"Async email failed to {recipient_list}: {str(e)}")
+            print(f"DEBUG: Async email failed to {recipient_list}: {str(e)}")
+            import traceback
+            print(f"DEBUG: Traceback: {traceback.format_exc()}")
     
     thread = threading.Thread(target=send)
     thread.start()
