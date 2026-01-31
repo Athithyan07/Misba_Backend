@@ -155,10 +155,12 @@ class BookingViewSet(viewsets.ModelViewSet):
                 to=[booking.customer_email],
             )
             customer_mail.attach_alternative(customer_html_content, "text/html")
-            customer_mail.send(fail_silently=True)
+            customer_mail.send(fail_silently=False)
 
         except Exception as e:
             print(f"Failed to send booking email: {e}")
+            # Log the error but don't crash the whole request if email fails
+            # We already saved the booking in the database!
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
