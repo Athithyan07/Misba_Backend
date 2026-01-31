@@ -1,1 +1,2 @@
-web: python manage.py migrate && gunicorn misba_tourism.wsgi --log-file -
+release: python manage.py migrate
+web: gunicorn misba_tourism.wsgi --log-file -
