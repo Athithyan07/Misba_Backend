@@ -97,16 +97,10 @@ CSRF_TRUSTED_ORIGINS = [
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-# Forced IPv4 for Gmail SMTP to avoid 'Network unreachable'
-import socket
-try:
-    EMAIL_HOST = socket.gethostbyname('smtp.gmail.com')
-except:
-    pass
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_TIMEOUT = 25
+EMAIL_TIMEOUT = 30
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'wart bkel vqkh enlf')
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
