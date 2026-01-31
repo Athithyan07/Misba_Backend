@@ -103,10 +103,10 @@ try:
     EMAIL_HOST = socket.gethostbyname('smtp.gmail.com')
 except:
     pass
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_TIMEOUT = 10
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_TIMEOUT = 25
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'wart bkel vqkh enlf')
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
@@ -149,9 +149,11 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Ensure the static directory exists locally so it can be pushed
+# Ensure the static and staticfiles directories exist locally so it can be pushed
 if not (BASE_DIR / 'static').exists():
-    os.makedirs(BASE_DIR / 'static')
+    os.makedirs(BASE_DIR / 'static', exist_ok=True)
+if not (BASE_DIR / 'staticfiles').exists():
+    os.makedirs(BASE_DIR / 'staticfiles', exist_ok=True)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
