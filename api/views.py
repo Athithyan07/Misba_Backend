@@ -4,6 +4,37 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 from django.utils.html import strip_tags
 import threading
+import requests
+
+def send_sms_async(phone_number, message):
+    def send():
+        try:
+            # Using Fast2SMS (Free Tier/Wallet) or similar
+            # If you don't have an API key, it will just log the attempt
+            api_key = getattr(settings, 'SMS_API_KEY', None)
+            if not api_key:
+                print(f"DEBUG: SMS to {phone_number} skipped (No API Key). Message: {message}")
+                return
+
+            url = "https://www.fast2sms.com/dev/bulkV2"
+            payload = {
+                "message": message,
+                "language": "english",
+                "route": "q",
+                "numbers": phone_number,
+            }
+            headers = {
+                'authorization': api_key,
+                'Content-Type': "application/x-www-form-urlencoded",
+                'Cache-Control': "no-cache",
+            }
+            response = requests.post(url, data=payload, headers=headers)
+            print(f"DEBUG: SMS sent to {phone_number}. Response: {response.text}")
+        except Exception as e:
+            print(f"DEBUG: SMS failed to {phone_number}: {str(e)}")
+
+    thread = threading.Thread(target=send)
+    thread.start()
 
 def send_email_async(subject, text_content, html_content, recipient_list):
     def send():
@@ -155,9 +186,15 @@ class BookingViewSet(viewsets.ModelViewSet):
         customer_text_content = strip_tags(customer_html_content)
 
         # Send Emails in Background
-        print(f"Triggering background emails for booking: {booking.id}")
+        print(f"Triggering background notifications for booking: {booking.id}")
         
-        # Send to Admin
+        # 1. Background Emails
+        send_email_async(
+            customer_subject,
+            customer_text_content,
+            customer_html_content,
+            [booking.customer_email]
+        )
         send_email_async(
             admin_subject,
             admin_text_content,
@@ -165,13 +202,16 @@ class BookingViewSet(viewsets.ModelViewSet):
             [settings.ADMIN_EMAIL]
         )
         
-        # Send to Customer
-        send_email_async(
-            customer_subject,
-            customer_text_content,
-            customer_html_content,
-            [booking.customer_email]
-        )
+        # 2. Background SMS Notifications
+        admin_sms_msg = f"NEW BOOKING: {booking.booking_type.upper()} from {booking.customer_name} ({booking.customer_phone}). Date: {booking.start_date}"
+        customer_sms_msg = f"Hi {booking.customer_name}, your booking request for {booking.booking_type} has been received by Misba Tourism. We will contact you shortly."
+        
+        # Send to Admin
+        send_sms_async(settings.ADMIN_PHONE, admin_sms_msg)
+        
+        # Send to Customer (only if valid phone exists)
+        if booking.customer_phone:
+            send_sms_async(booking.customer_phone, customer_sms_msg)
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -265,23 +305,29 @@ class ContactViewSet(viewsets.ModelViewSet):
         """
 
         # Send Emails in Background
-        print(f"Triggering background emails for contact inquiry: {contact.id}")
+        print(f"Triggering background notifications for contact inquiry: {contact.id}")
         
-        # Send to Admin
+        # 1. Background Emails
         send_email_async(
             admin_subject,
             strip_tags(admin_html),
             admin_html,
             [settings.ADMIN_EMAIL]
         )
-        
-        # Send to Customer
         send_email_async(
             customer_subject,
             strip_tags(customer_html),
             customer_html,
             [contact.email]
         )
+
+        # 2. Background SMS Notification
+        admin_sms_msg = f"NEW INQUIRY: {contact.name} ({contact.phone}). Subject: {contact.subject}"
+        send_sms_async(settings.ADMIN_PHONE, admin_sms_msg)
+        
+        if contact.phone:
+            customer_sms_msg = f"Hi {contact.name}, thank you for contacting Misba Tourism. We have received your message and will respond shortly."
+            send_sms_async(contact.phone, customer_sms_msg)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

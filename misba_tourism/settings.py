@@ -96,7 +96,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+# Alternative host to bypass network blocks
+EMAIL_HOST = 'smtp.googlemail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
@@ -105,6 +106,8 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'wart bkel vqkh enlf')
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'misbatourismkkl@gmail.com')
+ADMIN_PHONE = '9025322098'
+SMS_API_KEY = os.environ.get('SMS_API_KEY') # For Fast2SMS or similar
 
 CORS_ALLOW_ALL_ORIGINS = True
 
