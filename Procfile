@@ -1,2 +1,1 @@
-release: python manage.py migrate --noinput && python manage.py collectstatic --noinput
-web: gunicorn misba_tourism.wsgi --log-file -
+web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn misba_tourism.wsgi --log-file -
