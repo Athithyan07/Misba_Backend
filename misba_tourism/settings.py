@@ -96,18 +96,19 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Email Settings
 # For testing (prints to terminal):
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@misbatourism.com'
+ADMIN_EMAIL = 'misbatourism@gmail.com'
 
 # For real emails (using Gmail):
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'misbatourismkkl@gmail.com'
-# IMPORTANT: Use a Gmail App Password, NOT your regular password
-EMAIL_HOST_PASSWORD = 'nujs kzbu wiri pskn' 
-DEFAULT_FROM_EMAIL = 'misbatourismkkl@gmail.com'
-ADMIN_EMAIL = 'misbatourismkkl@gmail.com'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'misbatourism@gmail.com')
 
 CORS_ALLOW_ALL_ORIGINS = True
 
