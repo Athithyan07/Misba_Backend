@@ -109,24 +109,23 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
 # Email Settings
+import socket
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_TIMEOUT = 30
+# Manually resolve to IPv4 to prevent 'Network unreachable' (IPv6) errors
+try:
+    EMAIL_HOST = socket.gethostbyname('smtp.gmail.com')
+except socket.error:
+    EMAIL_HOST = 'smtp.gmail.com'
+
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_TIMEOUT = 25
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'wart bkel vqkh enlf')
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'misbatourismkkl@gmail.com')
 ADMIN_PHONE = '9025322098'
-
-# Forced IPv4 for Gmail SMTP to avoid 'Network unreachable' errors on cloud providers
-import socket
-orig_getaddrinfo = socket.getaddrinfo
-def getaddrinfo_ipv4(host, port, family=0, type=0, proto=0, flags=0):
-    return orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
-socket.getaddrinfo = getaddrinfo_ipv4
 
 AUTH_PASSWORD_VALIDATORS = [
     {
