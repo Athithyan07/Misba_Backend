@@ -110,18 +110,16 @@ SESSION_COOKIE_SECURE = True
 
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# Alternative host to bypass network blocks
-EMAIL_HOST = 'smtp.googlemail.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_TIMEOUT = 60
+EMAIL_TIMEOUT = 30
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'wart bkel vqkh enlf')
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'misbatourismkkl@gmail.com')
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'misbatourismkkl@gmail.com')
 ADMIN_PHONE = '9025322098'
-SMS_API_KEY = os.environ.get('SMS_API_KEY') # For Fast2SMS or similar
 
 AUTH_PASSWORD_VALIDATORS = [
     {
