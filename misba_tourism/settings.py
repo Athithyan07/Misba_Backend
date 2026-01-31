@@ -89,7 +89,9 @@ DATABASES = {
 # CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS = [
     "https://misbatourism.com",
-    "https://*.railway.app"
+    "https://www.misbatourism.com",
+    "https://*.railway.app",
+    "https://*.up.railway.app"
 ]
 
 # Email Settings
