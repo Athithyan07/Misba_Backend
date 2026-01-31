@@ -141,6 +141,10 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Ensure the static directory exists locally so it can be pushed
+if not (BASE_DIR / 'static').exists():
+    os.makedirs(BASE_DIR / 'static')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
