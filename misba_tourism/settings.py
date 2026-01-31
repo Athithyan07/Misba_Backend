@@ -82,17 +82,9 @@ WSGI_APPLICATION = 'misba_tourism.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         conn_max_age=600,
-        ssl_require=True
+        ssl_require=False
     )
 }
-
-if not DATABASES['default']:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 
 # CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS = [
